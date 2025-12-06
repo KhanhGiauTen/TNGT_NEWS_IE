@@ -39,6 +39,6 @@ TNGT_NEWS_IE/
 # Tạo môi trường ảo và cài đặt thư viện
 ```bash
 python -m venv venv
-venv\Scripts\activate  # Trên PowerShell dùng `.\venv\Scripts\activate
+venv\Scripts\activate  # Trên PowerShell dùng `.\venv\Scripts\activate`, pyhton `.\venv\Scripts\activate.bat`   
 pip install -r requirements.txt
 ```

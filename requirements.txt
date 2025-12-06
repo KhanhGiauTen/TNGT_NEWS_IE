@@ -10,6 +10,8 @@ transformers
 # NLP Libraries
 spacy
 vncorenlp
+# pyvi
+# underthesea
 
 # Web App / UI
 streamlit
