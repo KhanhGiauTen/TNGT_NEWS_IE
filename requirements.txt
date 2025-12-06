@@ -1,0 +1,22 @@
+# Data Manipulation
+pandas
+numpy
+
+# Machine Learning & Deep Learning (Cơ bản)
+scikit-learn
+torch
+transformers
+
+# NLP Libraries
+spacy
+vncorenlp
+
+# Web App / UI
+streamlit
+watchdog  # Giúp streamlit tự reload khi sửa code
+
+# Notebook & Utils
+jupyter
+matplotlib
+seaborn
+tqdm
