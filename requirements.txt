@@ -15,7 +15,8 @@ vncorenlp
 
 # Web App / UI
 streamlit
-watchdog  # Giúp streamlit tự reload khi sửa code
+watchdog 
+graphviz 
 
 # Notebook & Utils
 jupyter
