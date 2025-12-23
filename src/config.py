@@ -32,8 +32,8 @@ MODEL_PATHS = {
         "METADATA":  os.path.join(MODEL_DIR, "re/metadata.pkl"),
         
         # Models ML (.joblib)
-        "LOGREG":    os.path.join(MODEL_DIR, "re/logistic_regression.joblib"),
+        "LOGREG":    os.path.join(MODEL_DIR, "re/lr_model.joblib"),
         "SVM":       os.path.join(MODEL_DIR, "re/svm_model.joblib"),
-        "RF":        os.path.join(MODEL_DIR, "re/random_forest.joblib"),
+        "RF":        os.path.join(MODEL_DIR, "re/rf_model.joblib"),
     }
 }

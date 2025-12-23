@@ -20,7 +20,7 @@ def bootstrap_system():
     
     # 2. Load RE Model
     print("-> Loading RE Model...")
-    re_model = loader.load_re_model("PHOBERT")
+    re_model = loader.load_re_model("LOGREG")
     
     # 3. Khởi tạo Pipeline với model đã load
     print("-> Initializing Pipeline...")
