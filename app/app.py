@@ -5,7 +5,7 @@ import pandas as pd
 import graphviz
 import time
 
-# --- 1. CẤU HÌNH ĐƯỜNG DẪN (PATH SETUP) ---
+# CẤU HÌNH ĐƯỜNG DẪN 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 if project_root not in sys.path:
@@ -18,14 +18,13 @@ except ImportError as e:
     st.error(f"Lỗi import module: {e}")
     st.stop()
 
-# --- 2. CẤU HÌNH TRANG ---
+# CẤU HÌNH TRANG 
 st.set_page_config(page_title="TNGT IE Demo", layout="wide", page_icon="⚡")
 
-# Danh sách các model
 NER_MODELS_LIST = ["PHOBERT", "CRF", "SVM", "LOGREG"]
 RE_MODELS_LIST = ["PHOBERT", "SVM", "RF", "LOGREG"]
 
-# --- 3. HÀM LOAD TOÀN BỘ MODEL (CACHED) ---
+# HÀM LOAD TOÀN BỘ MODEL (CACHED) 
 @st.cache_resource(show_spinner=False)
 def load_all_models_at_startup():
     """Load TẤT CẢ model vào RAM khi khởi động."""
@@ -39,7 +38,7 @@ def load_all_models_at_startup():
     total_steps = len(NER_MODELS_LIST) + len(RE_MODELS_LIST)
     step_count = 0
 
-    # 1. Load All NER Models
+    #Load All NER Models
     for name in NER_MODELS_LIST:
         step_count += 1
         progress_bar.progress(step_count / total_steps, text=f"Đang tải NER Model: {name} ({step_count}/{total_steps})")
@@ -49,7 +48,7 @@ def load_all_models_at_startup():
             print(f"Error loading NER {name}: {e}")
             model_store["NER"][name] = None
 
-    # 2. Load All RE Models
+    #Load All RE Models
     for name in RE_MODELS_LIST:
         step_count += 1
         progress_bar.progress(step_count / total_steps, text=f"Đang tải RE Model: {name} ({step_count}/{total_steps})")
@@ -62,22 +61,19 @@ def load_all_models_at_startup():
     progress_bar.empty()
     return model_store
 
-# --- 4. GIAO DIỆN CHÍNH ---
+# GIAO DIỆN CHÍNH ---
 
-# Gọi hàm load ngay đầu chương trình
 with st.spinner('Đang tải toàn bộ dữ liệu vào RAM (Lần đầu sẽ mất khoảng 1-2 phút)...'):
     ALL_MODELS = load_all_models_at_startup()
 
 st.sidebar.title("⚙️ Control Panel")
 
-# Chọn Model
 st.sidebar.subheader("Mô hình NER")
 selected_ner_name = st.sidebar.selectbox("Chọn model NER:", NER_MODELS_LIST, index=0)
 
 st.sidebar.subheader("Mô hình RE")
 selected_re_name = st.sidebar.selectbox("Chọn model RE:", RE_MODELS_LIST, index=0)
 
-# Lấy model instance
 ner_model = ALL_MODELS["NER"].get(selected_ner_name)
 re_model = ALL_MODELS["RE"].get(selected_re_name)
 
@@ -88,7 +84,7 @@ else:
     st.error("Có lỗi khi load model. Vui lòng kiểm tra log.")
     st.stop()
 
-# --- 5. UI INPUT & OUTPUT ---
+# UI INPUT & OUTPUT ---
 st.title("Hệ thống Trích xuất Thông tin TNGT")
 st.caption("Demo load toàn bộ model tại thời điểm khởi động (Pre-load All)")
 
@@ -106,7 +102,6 @@ with col_action:
 
 if run_btn and input_text:
     
-    # --- BƯỚC 1: TẠO KHUNG LAYOUT (Placeholders) ---
     col1, col2 = st.columns(2)
     
     with col1:
@@ -124,7 +119,7 @@ if run_btn and input_text:
     vis_placeholder = st.empty()
     vis_placeholder.info("⏳ Đang chờ dữ liệu để vẽ biểu đồ...")
 
-    # --- BƯỚC 2: CHẠY PIPELINE ---
+    # CHẠY PIPELINE
     try:
         with st.spinner('Đang chạy mô hình AI...'):
             start_time = time.time()
@@ -132,9 +127,8 @@ if run_btn and input_text:
             process_time = time.time() - start_time
             st.toast(f"Xử lý xong trong {process_time:.2f}s!", icon="🎉")
 
-        # --- BƯỚC 3: CẬP NHẬT KẾT QUẢ ---
         
-        # 1. Cập nhật Entities
+        # Cập nhật Entities
         with ent_placeholder.container():
             if result['entities']:
                 df_ent = pd.DataFrame(result['entities'])
@@ -145,7 +139,7 @@ if run_btn and input_text:
             else:
                 st.warning("Không phát hiện thực thể.")
         
-        # 2. Cập nhật Relations
+        # Cập nhật Relations
         with rel_placeholder.container():
             if result['relations']:
                 df_rel = pd.DataFrame(result['relations'])
@@ -156,11 +150,10 @@ if run_btn and input_text:
             else:
                 st.warning("Không phát hiện quan hệ.")
 
-        # 3. Vẽ biểu đồ (Interactive Graphviz)
+        # Vẽ biểu đồ 
         with vis_placeholder.container():
             if result['entities'] or result['relations']:
                 with st.status("Đang hiển thị biểu đồ tương tác...", expanded=True) as status:
-                    # Tạo graphviz object (Mặc định là SVG interactive)
                     graph = graphviz.Digraph()
                     graph.attr(rankdir='LR')
                     
@@ -189,7 +182,6 @@ if run_btn and input_text:
                             added_nodes.add(rel['object'])
                         graph.edge(rel['subject'], rel['object'], label=rel['relation'], fontsize='10')
 
-                    # Render Interactive Chart
                     st.graphviz_chart(graph)
                     
                     status.update(label="Vẽ biểu đồ thành công!", state="complete", expanded=False)

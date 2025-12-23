@@ -6,8 +6,6 @@ MODEL_DIR = os.path.join(BASE_DIR, 'models')
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# --- CẤU HÌNH RE CHUẨN (KHỚP NOTEBOOK) ---
-# Mapping ID <-> Label
 RE_ID2LABEL = {
     0: "NO_RELATION",
     1: "CAUSED_BY",
@@ -18,7 +16,7 @@ RE_ID2LABEL = {
 }
 RE_LABEL2ID = {v: k for k, v in RE_ID2LABEL.items()}
 
-# Các cặp quan hệ hợp lệ (Schema Check)
+# Các cặp quan hệ hợp lệ 
 VALID_RE_PAIRS = {
     ('EVENT', 'LOC'), 
     ('EVENT', 'TIME'), 

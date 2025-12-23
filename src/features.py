@@ -35,7 +35,6 @@ class PhoBERTFeatureExtractor:
         tokens = text.split()
         if not tokens: return np.array([])
         
-        # 1. Tokenize input
         inputs = self.tokenizer(
             tokens, 
             is_split_into_words=True, 
@@ -50,22 +49,19 @@ class PhoBERTFeatureExtractor:
         
         embeddings = outputs.last_hidden_state[0].cpu().numpy() # [seq_len, 768]
         
-        # 2. TẠO MAPPING THỦ CÔNG (Thay vì dùng word_ids())
-        # Logic: Encode từng từ lẻ để biết nó tách thành bao nhiêu subwords
+        # Encode từng từ lẻ để biết nó tách thành bao nhiêu subwords
         wids = [None] # [CLS] luôn là None
         for i, token in enumerate(tokens):
-            # add_special_tokens=False để chỉ lấy subwords của từ đó
             subwords = self.tokenizer.encode(token, add_special_tokens=False)
             wids.extend([i] * len(subwords))
             
-        # Cắt hoặc thêm None cho khớp với độ dài thực tế của sequence (do truncation/padding/SEP)
         seq_len = inputs['input_ids'].shape[1]
         if len(wids) < seq_len:
-            wids.extend([None] * (seq_len - len(wids))) # Fill [SEP] và padding
+            wids.extend([None] * (seq_len - len(wids))) 
         else:
-            wids = wids[:seq_len] # Cắt bớt nếu bị truncate
+            wids = wids[:seq_len]
             
-        # 3. Lấy embedding của subword đầu tiên cho mỗi word
+        # Lấy embedding của subword đầu tiên cho mỗi word
         final_vectors = []
         seen_word_idx = set()
         
@@ -76,7 +72,6 @@ class PhoBERTFeatureExtractor:
                 final_vectors.append(embeddings[idx])
                 seen_word_idx.add(word_id)
         
-        # 4. Xử lý trường hợp bị cắt cụt (Truncation)
         # Nếu câu quá dài, PhoBERT cắt bớt -> thiếu vector cho các từ cuối
         # Ta fill bằng vector 0 để tránh lỗi shape
         if len(final_vectors) < len(tokens):
@@ -107,7 +102,6 @@ class PhoBERTFeatureExtractor:
 
         sent_feats = []
         for vec in vectors:
-            # Tạo dictionary đặc trưng: {'d0': 0.1, 'd1': -0.5...}
             feat_dict = {f'd{i}': v for i, v in enumerate(vec)}
             sent_feats.append(feat_dict)
             

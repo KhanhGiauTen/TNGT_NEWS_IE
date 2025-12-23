@@ -63,7 +63,7 @@ class TNGTPipeline:
         all_relations = []
 
         for idx, chunk in enumerate(windows):
-            # 1. NER
+            # NER
             entities = self.ner_predictor.predict(chunk)
             
             # Chuẩn hóa output NER và thêm vào list tổng
@@ -75,7 +75,7 @@ class TNGTPipeline:
                 e['entity_group'] = lbl # Cập nhật lại để dùng cho RE
                 all_entities.append({"text": e.get('word'), "label": lbl, "window_id": idx})
 
-            # 2. RE (Typed Markers)
+            # RE (Typed Markers)
             pairs = self._generate_pairs(entities)
             for p in pairs:
                 re_input = self._prepare_input_typed(chunk, p['source'], p['target'])

@@ -13,16 +13,12 @@ def bootstrap_system():
     print("=== BOOTSTRAP: ĐANG KHỞI TẠO HỆ THỐNG ===")
     loader = SystemLoader()
     
-    # 1. Load NER Model
-    # Bạn có thể đổi thành 'PHOBERT' hoặc 'SVM' tại đây
     print("-> Loading NER Model...")
     ner_model = loader.load_ner_model("PHOBERT") 
     
-    # 2. Load RE Model
     print("-> Loading RE Model...")
     re_model = loader.load_re_model("PHOBERT")
     
-    # 3. Khởi tạo Pipeline với model đã load
     print("-> Initializing Pipeline...")
     pipeline = TNGTPipeline(ner_model, re_model)
     

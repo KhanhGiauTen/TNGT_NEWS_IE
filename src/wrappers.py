@@ -3,7 +3,6 @@ import numpy as np
 from transformers import pipeline
 from .config import RE_ID2LABEL, SPECIAL_TOKENS, DEVICE
 
-# --- HÀM PHỤ TRỢ: GỘP BIO TAGS THÀNH ENTITY ---
 def aggregate_entities(tokens, tags):
     """
     Input: 
@@ -49,7 +48,6 @@ def aggregate_entities(tokens, tags):
         entities.append(current_entity)
     return entities
 
-# --- CÁC CLASS WRAPPER ---
 class BasePredictor:
     def __init__(self, model_type):
         self.model_type = model_type
@@ -75,15 +73,12 @@ class NERPredictor(BasePredictor):
             tokens = text.split()
             if not tokens: return []
 
-            # === TRƯỜNG HỢP RIÊNG CHO CRF ===
-            # Kiểm tra nếu là model CRF (sklearn_crfsuite.CRF)
+            # Kiểm tra nếu là model CRF 
             if "CRF" in str(type(self.model)) or hasattr(self.model, "tagger_"):
-                # 1. Lấy features chuẩn format notebook (List of Dicts)
+                # Lấy features chuẩn format notebook (List of Dicts)
                 features = self.feature_extractor.extract_crf_features(text)
                 
-                # 2. Predict
                 # CRF predict nhận vào list các câu: [[feat1, feat2], [feat1, feat2]]
-                # Nên ta phải bọc features vào 1 list: [features]
                 if not features:
                     return []
                     

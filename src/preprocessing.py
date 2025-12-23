@@ -71,7 +71,6 @@ def sliding_window_extract(text, window_size=3, step_size=2):
     sentences = split_sentences(text)
     
     if len(sentences) <= window_size:
-        # Restore lại dấu chấm trước khi trả về
         return [restore_abbreviations(text)]
 
     windows = []

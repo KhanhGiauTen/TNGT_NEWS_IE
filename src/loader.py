@@ -1,7 +1,6 @@
-# src/loader.py
 import os
 import joblib
-import json  # <--- THÊM IMPORT NÀY
+import json  
 from transformers import AutoModelForTokenClassification, AutoModelForSequenceClassification, AutoTokenizer
 from .config import MODEL_PATHS, DEVICE
 from .features import PhoBERTFeatureExtractor
@@ -25,28 +24,21 @@ class SystemLoader:
         print(f"--- [LOAD] Đang tải NER: {model_name}...")
         path = MODEL_PATHS["NER"].get(model_name)
         
-        # 1. Deep Learning
         if model_name == 'PHOBERT':
             tokenizer = AutoTokenizer.from_pretrained(path)
             model = AutoModelForTokenClassification.from_pretrained(path).to(DEVICE)
             predictor = NERPredictor('DL', model, tokenizer=tokenizer)
         
-        # 2. Machine Learning
         else:
-            # Load Model
             model = joblib.load(path)
             
-            # --- SỬA ĐOẠN LOAD LABEL MAP ---
             map_path = MODEL_PATHS["NER"]["LABEL_MAP"]
             
             with open(map_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # Xử lý format JSON phức tạp của bạn
             if "id2label" in data:
                 raw_map = data["id2label"] # Dạng {"0": "O", "1": "B-LOC"...}
-                # Quan trọng: Key trong JSON là String, nhưng Model trả về Int
-                # Cần convert key sang Int: {0: "O", 1: "B-LOC"...}
                 label_map = {int(k): v for k, v in raw_map.items()}
             else:
                 # Fallback nếu file cấu trúc khác
@@ -60,7 +52,6 @@ class SystemLoader:
         return predictor
 
     def load_re_model(self, model_name):
-        # ... (Giữ nguyên code phần RE) ...
         cache_key = f"RE_{model_name}"
         if cache_key in self.cached_models:
             return self.cached_models[cache_key]
