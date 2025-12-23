@@ -20,7 +20,7 @@ def bootstrap_system():
     
     # 2. Load RE Model
     print("-> Loading RE Model...")
-    re_model = loader.load_re_model("LOGREG")
+    re_model = loader.load_re_model("PHOBERT")
     
     # 3. Khởi tạo Pipeline với model đã load
     print("-> Initializing Pipeline...")
@@ -36,7 +36,7 @@ def main():
     # Dữ liệu mẫu
     article = """
     Vào khoảng 15h30 chiều ngày 20/11, một vụ tai nạn giao thông nghiêm trọng đã xảy ra tại ngã tư Hàng Xanh, TP.HCM. 
-    Xe tải mang BKS 29C-123.45 do tài xế Nguyễn Văn A điều khiển đã va chạm mạnh với xe khách. 
+    Xe tải mang BKS 29C-123.45 do tài xế Nguyễn Văn A điều khiển đã va chạm mạnh với xe khach. 
     Nạn nhân bị thương nặng được đưa đi cấp cứu.
     """
 

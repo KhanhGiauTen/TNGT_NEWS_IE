@@ -64,38 +64,54 @@ class NERPredictor(BasePredictor):
                                  aggregation_strategy="simple", device=0 if torch.cuda.is_available() else -1)
         else:
             self.feature_extractor = feature_extractor
-            self.label_map = label_map # {0: 'O', 1: 'B-LOC'}
+            self.label_map = label_map 
 
     def predict(self, text):
         if self.model_type == 'DL':
-            # HuggingFace pipeline đã tự gộp entity
             return self.pipe(text)
         
         else:
-            # --- LOGIC CHO ML (SVM/LogReg/CRF) ---
-            
-            # 1. Lấy vector
-            # Lưu ý: feature_extractor.vectorize_token_level dùng split() nên ta cũng dùng split() để lấy token gốc
+            # --- LOGIC CHO ML ---
             tokens = text.split()
-            
-            if hasattr(self.model, "predict_marginals") or "CRF" in str(type(self.model)):
-                vectors = self.feature_extractor.extract_crf_features(text)
-                # CRF predict trả về list of list labels luôn
-                preds = self.model.predict(vectors)[0] 
+            if not tokens: return []
+
+            # === TRƯỜNG HỢP RIÊNG CHO CRF ===
+            # Kiểm tra nếu là model CRF (sklearn_crfsuite.CRF)
+            if "CRF" in str(type(self.model)) or hasattr(self.model, "tagger_"):
+                # 1. Lấy features chuẩn format notebook (List of Dicts)
+                features = self.feature_extractor.extract_crf_features(text)
+                
+                # 2. Predict
+                # CRF predict nhận vào list các câu: [[feat1, feat2], [feat1, feat2]]
+                # Nên ta phải bọc features vào 1 list: [features]
+                if not features:
+                    return []
+                    
+                try:
+                    # Trả về list of lists of labels: [['B-LOC', 'O', ...]]
+                    preds_list = self.model.predict([features])
+                    
+                    if len(preds_list) > 0:
+                        preds = preds_list[0]
+                    else:
+                        preds = ["O"] * len(tokens)
+                except Exception as e:
+                    print(f"[ERROR CRF Predict]: {e}")
+                    return []
+
+            # === TRƯỜNG HỢP CHO LOGREG / SVM ===
             else:
                 vectors = self.feature_extractor.vectorize_token_level(text)
-                # SVM/LogReg predict trả về mảng số
-                pred_ids = self.model.predict(vectors)
-                
-                # Map ID -> Label String
-                preds = []
-                for pid in pred_ids:
-                    # Xử lý trường hợp label_map key là string hoặc int
-                    label = self.label_map.get(pid) or self.label_map.get(str(pid)) or 'O'
-                    preds.append(label)
+                if len(vectors) == 0:
+                    preds = []
+                else:
+                    pred_ids = self.model.predict(vectors)
+                    preds = []
+                    for pid in pred_ids:
+                        label = self.label_map.get(pid) or self.label_map.get(str(pid)) or 'O'
+                        preds.append(label)
 
-            # 2. Gộp Tokens + Tags thành Entities
-            # Cắt ngắn nếu số lượng token và pred không khớp (do tokenizer)
+            # Gộp kết quả
             min_len = min(len(tokens), len(preds))
             entities = aggregate_entities(tokens[:min_len], preds[:min_len])
             
